@@ -9,7 +9,7 @@ HKU students receive posters through chats, emails, and course pages. Manually c
 
 
 ## 🛠️ Team Division
-- **Member GE Jiayu**: Streamlit interface (upload/preview, side-by-side editable event details, confirmation workflow).
+- **GE Jiayu**: Streamlit interface (upload/preview, side-by-side editable event details, confirmation workflow).
 - **Member B**: AI extraction (vision-capable LLM integration, prompt design, and field-checking logic).
 - **Member C**: Calendar export & validation (generating `.ics` files, separate registration deadlines, safe-failure warnings).
 - **Ding Siqi**: Repository setup, integration, end-to-end testing, and documentation (`README.md` & demo).
