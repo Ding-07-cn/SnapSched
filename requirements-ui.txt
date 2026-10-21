@@ -1,0 +1,3 @@
+# Dependencies for Part A only; B/C owners may add their own separately.
+streamlit==1.66.0
+Pillow==12.3.0

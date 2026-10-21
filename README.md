@@ -18,9 +18,20 @@ HKU students receive posters through chats, emails, and course pages. Manually c
 ## 📦 Quick Start Guide
 
 ### 1. Prerequisites
-Make sure you have **Python 3.10+** installed on your computer.
+Make sure you have **Python 3.11+** installed on your computer (required by the tested Streamlit version).
 
 ### 2. Install Dependencies
 Open your terminal inside the project folder and run:
 ```bash
 pip install -r requirements.txt
+```
+
+### 3. Run the interface
+
+```bash
+python -m streamlit run app.py
+```
+
+See [README_INTERFACE.md](README_INTERFACE.md) for the complete Part A setup,
+review workflow, tests and B/C integration contract. The interface can run on its
+own; real AI extraction and calendar generation require the B/C modules.
