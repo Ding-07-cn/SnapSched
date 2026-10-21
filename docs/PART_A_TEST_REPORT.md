@@ -58,8 +58,20 @@ bad deadline acceptance and incorrect phone orientation. These were fixed and th
 Python imports changed; the fresh process was checked in the browser. This avoids
 mistaking an old hot-reload process for a clean deployment.
 
-The repository includes a Python 3.11/3.12 Linux CI workflow. Its existence is not
-proof that a remote run passed; use the GitHub Actions result for that claim.
+GitHub Actions run 39564068373 completed successfully on Linux for Python 3.11
+and 3.12, including dependency installation, the test suite and compilation.
+Verified code commit: `8b5d8c0de7192b3831f80167d5ee7483cb61e5cc`.
+Result: https://github.com/Ding-07-cn/SnapSched/actions/runs/39564068373
+
+## Publication and hosting
+
+Part A is published in https://github.com/Ding-07-cn/SnapSched/pull/1 .
+The Streamlit hosting entrypoint https://share.streamlit.io returned
+`source IP address not allowed` in both the in-app browser and Chrome on this
+machine. Hosting is therefore blocked before sign-in/deployment; this delivery
+does not claim a live public URL. The localhost preview works on this machine only.
+From a connection that can access the service, use the hosting settings in
+README_INTERFACE.md. Do not replace this Python app with a static Pages upload.
 
 ## Not demonstrated or claimed
 

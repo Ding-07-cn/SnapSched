@@ -31,9 +31,11 @@ The saved-data demo does not constitute the real end-to-end AI workflow.
 The full 12-poster team evaluation and a real calendar import are not yet done.
 
 Write access for gejiayu202509-maker was verified on 21 October. The code is
-prepared for the team repository, with a shareable ZIP as a separate handoff.
-Publication and hosting status must be checked on GitHub/the hosting service;
-these notes do not themselves prove a public deployment.
+published at https://github.com/Ding-07-cn/SnapSched/pull/1, with a shareable ZIP
+as a separate handoff. Linux CI passed on Python 3.11 and 3.12 (run 39564068373).
+Public hosting remains blocked because share.streamlit.io returns
+`source IP address not allowed` in both available browsers on this machine.
+No live public deployment is claimed.
 
 After B/C are connected, I can verify that the live extraction result fills
 the interface correctly and that only explicitly confirmed details reach C.
