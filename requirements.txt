@@ -2,5 +2,6 @@
 -r requirements-ui.txt
 
 # Part B (AI extraction)
-google-genai>=1.0
-python-dotenv>=1.0
+google-genai==2.33.0
+python-dotenv==1.2.4
+-r requirements-calendar.txt

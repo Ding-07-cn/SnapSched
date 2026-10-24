@@ -45,6 +45,7 @@ from dotenv import load_dotenv
 from PIL import Image, ImageOps, UnidentifiedImageError
 
 from prompts import PROMPT_VERSION, build_prompt  # noqa: F401  (PROMPT_VERSION re-exported for logs)
+from runtime_config import setting
 
 # Load GEMINI_API_KEY etc. from a .env next to this file. Never printed or logged.
 load_dotenv(Path(__file__).resolve().parent / ".env")
@@ -59,8 +60,8 @@ DEMO_DIR = Path(__file__).resolve().parent / "demo_results"
 DEFAULT_MODEL = "gemini-3.5-flash"      # override with SNAPSCHED_MODEL
 DEFAULT_TIMEOUT_SECONDS = 60.0          # override with SNAPSCHED_TIMEOUT_SECONDS
 ALLOWED_MIME_TYPES = ("image/jpeg", "image/png")
-MAX_UPLOAD_BYTES = 10 * 1024 * 1024
-MAX_PIXELS = 50_000_000                 # refuse absurdly large images before decoding them
+MAX_UPLOAD_BYTES = 8 * 1024 * 1024
+MAX_PIXELS = 20_000_000                 # same limits as the upload/review screen
 MAX_LONG_SIDE = 1600
 MAX_RETRIES = 2
 RETRY_BACKOFF_SECONDS = (1.0, 2.0)
@@ -106,7 +107,7 @@ FIELD_LABELS = {
 _RETRY_OR_DEMO = " You can try again, or switch to demo mode to use a saved sample poster."
 ERROR_MESSAGES = {
     "bad_type": "Only JPG and PNG images are supported. Please upload a .jpg or .png file.",
-    "too_large": "That image is larger than 10 MB. Please upload a smaller JPG or PNG.",
+    "too_large": "Use a JPG/PNG of at most 8 MB and 20 megapixels.",
     "bad_image": "That file could not be opened as a JPG or PNG image. Please upload a different image.",
     "config": "The AI service is not set up on this computer (missing API key or software)." + _RETRY_OR_DEMO,
     "auth": "The AI service rejected our credentials." + _RETRY_OR_DEMO,
@@ -268,6 +269,8 @@ def _prepare_image(image_bytes: bytes, mime_type: str) -> bytes:
         with Image.open(io.BytesIO(image_bytes)) as img:
             if img.format not in ("JPEG", "PNG"):
                 raise _ExtractionError("bad_type")
+            if getattr(img, "n_frames", 1) != 1:
+                raise _ExtractionError("bad_type")
             if img.width * img.height > MAX_PIXELS:
                 raise _ExtractionError("too_large")
             img = ImageOps.exif_transpose(img)  # honour phone-camera rotation
@@ -319,7 +322,7 @@ def _call_vision_model(image_bytes: bytes, mime_type: str, prompt: str) -> str:
     Raises ``_ExtractionError`` with a ``kind`` for every failure; provider exceptions and
     their text never leave this function.
     """
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = setting("GEMINI_API_KEY")
     if not api_key:
         raise _ExtractionError("config")
     try:
@@ -329,20 +332,27 @@ def _call_vision_model(image_bytes: bytes, mime_type: str, prompt: str) -> str:
     except ImportError:
         raise _ExtractionError("config")
 
-    model = os.getenv("SNAPSCHED_MODEL") or DEFAULT_MODEL
+    model = setting("SNAPSCHED_MODEL", DEFAULT_MODEL)
     try:
-        timeout_s = float(os.getenv("SNAPSCHED_TIMEOUT_SECONDS") or DEFAULT_TIMEOUT_SECONDS)
+        timeout_s = float(setting("SNAPSCHED_TIMEOUT_SECONDS", str(DEFAULT_TIMEOUT_SECONDS)))
+        if not 1 <= timeout_s <= 120:
+            timeout_s = DEFAULT_TIMEOUT_SECONDS
     except ValueError:
         timeout_s = DEFAULT_TIMEOUT_SECONDS
 
     try:
-        client = genai.Client(api_key=api_key,
-                              http_options=types.HttpOptions(timeout=int(timeout_s * 1000)))  # ms
-        response = client.models.generate_content(
-            model=model,
-            contents=[types.Part.from_bytes(data=image_bytes, mime_type=mime_type), prompt],
-            config=types.GenerateContentConfig(temperature=0, response_mime_type="application/json"),
-        )
+        # SDK retries are disabled here: the bounded outer loop owns retries.
+        with genai.Client(api_key=api_key,
+                          http_options=types.HttpOptions(timeout=int(timeout_s * 1000),
+                                                        retry_options=types.HttpRetryOptions(attempts=1))) as client:
+            response = client.models.generate_content(
+                model=model,
+                contents=[types.Part.from_bytes(data=image_bytes, mime_type=mime_type), prompt],
+                config=types.GenerateContentConfig(response_mime_type="application/json",
+                                                  max_output_tokens=4096,
+                                                  thinking_config=types.ThinkingConfig(thinking_level="minimal"),
+                                                  automatic_continuation=False),
+            )
         return response.text or ""   # None when the reply was blocked or empty
     except genai_errors.APIError as err:
         code = getattr(err, "code", None)

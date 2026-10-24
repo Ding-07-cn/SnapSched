@@ -339,7 +339,7 @@ def run_selftest() -> int:
     print("Input validation")
     ok_png = png_bytes()
     check("bad mime type rejected", extraction.extract_event(ok_png, "image/gif")["status"] == "api_error")
-    check("over 10 MB rejected", extraction.extract_event(b"0" * (extraction.MAX_UPLOAD_BYTES + 1), "image/png")["status"] == "api_error")
+    check("over upload byte limit rejected", extraction.extract_event(b"0" * (extraction.MAX_UPLOAD_BYTES + 1), "image/png")["status"] == "api_error")
     check("corrupt image rejected", extraction.extract_event(b"not an image", "image/png")["status"] == "api_error")
     sent = extraction._prepare_image(png_bytes((4000, 2000), "RGBA"), "image/png")
     with Image.open(io.BytesIO(sent)) as img:

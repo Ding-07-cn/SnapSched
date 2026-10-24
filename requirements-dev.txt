@@ -1,0 +1,3 @@
+# Only needed to regenerate the team-created evaluation poster set.
+-r requirements.txt
+qrcode==8.2

@@ -1,4 +1,27 @@
-# GE Jiayu - completed contribution as of 21 October 2026
+# GE Jiayu - contribution notes (updated 24 October 2026)
+
+## Integration update — 24 October
+
+I merged the existing Part B extraction and Part C calendar branches while
+preserving their histories. I connected Aryan's extraction contract to the review
+screen, supported secure deployment secrets and bounded provider requests, and
+completed the missing calendar backend using a maintained iCalendar library.
+The full code path now supports reviewed event export and a separate future
+registration-deadline entry. It preserves printed registration wording, omits
+expired deadline reminders, and never invents a closing time or event duration.
+
+I extended regression tests to cover actual A/B parser/adapter/C integration,
+calendar serialization and safe failures, updated both READMEs and prepared a
+12-image synthetic evaluation pack plus an explicitly opt-in live scoring tool.
+Exact final test results and verification limits are in
+`docs/INTEGRATION_TEST_REPORT.md`. Mocked model-response tests are not measured
+AI accuracy. Real API evaluation, independent review and actual calendar-client
+imports remain separate tasks, not completed claims.
+
+The notes below record the original 21 October Part A handoff and its then-current
+limitations; they do not override this integration update.
+
+---
 
 These are factual notes for the team status sheet / individual weekly report.
 Use the official Moodle form or companion template when submitting.

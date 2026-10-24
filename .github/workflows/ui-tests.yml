@@ -32,4 +32,6 @@ jobs:
           cache: pip
       - run: python -m pip install -r requirements.txt
       - run: python -m unittest discover -s tests -v
-      - run: python -m compileall -q app.py interface_state.py integrations.py tests scripts
+      - run: python test_extraction.py --selftest
+      - run: python -m pip check
+      - run: python -m compileall -q app.py ai_extraction.py extraction.py calendar_export.py runtime_config.py interface_state.py integrations.py review_page.py tests scripts
