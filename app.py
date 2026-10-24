@@ -5,7 +5,7 @@ from pathlib import Path
 
 import streamlit as st
 
-from integrations import calendar_file_bytes, load_backend
+from integrations import calendar_file_bytes, load_ai_backend, load_backend
 from interface_state import (
     FIELD_LIMITS, TEXT_FIELDS, confirmation_errors, empty_event, inspect_image,
     invalidate_review, normalise_event, populate_fields, replace_source,
@@ -44,7 +44,7 @@ if "upload_generation" not in st.session_state:
     st.session_state.extraction_warnings = []
     st.session_state.source_label = "Manual entry; no AI result yet"
 
-ai = load_backend("ai_extraction", "extract_event")
+ai = load_ai_backend()
 calendar = load_backend("calendar_export", "generate_ics")
 
 st.title("SnapSched")
@@ -128,8 +128,8 @@ with left:
                 populate_fields(st.session_state, fields)
                 st.session_state.extraction_warnings = warnings
                 st.session_state.source_label = "AI draft - verify against the original"
-            except Exception:
-                st.error("AI extraction could not finish. No result has been confirmed. "
+            except Exception as exc:
+                st.error(f"{exc} No result has been confirmed. "
                          "Retry, enter the fields manually, or use the labelled sample demo.")
         if not ai.function:
             st.caption("AI extraction is not connected yet. Manual review works now; the B owner "
