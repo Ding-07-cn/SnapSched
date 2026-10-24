@@ -44,5 +44,30 @@ Library compatibility
 Non-standard existing ICS format
 Exception contract not aligned with A
 
+6. Module Structure
+generate_calendar.py
+│
+├── parser.py
+│   └── parse_event_fields()
+│   └── parse_and_convert_time()
+│
+├── validator.py
+│   └── validate_event()
+│   └── validate_time_format()
+│   └── validate_time_logic()
+│   └── validate_string_content()
+│
+├── ics_generator.py
+│   └── generate_ics_content()
+│   └── create_event_obj()
+│   └── load_existing_ics() (备用或调试用)
+│
+├── import_validator.py
+│   └── validate_import()
+│
+└── exceptions.py
+    └── EventValidationError
+    └── ICSGenerationError
+    └── ICSImportValidationError
 
 
