@@ -5,7 +5,7 @@ from pathlib import Path
 
 import streamlit as st
 
-from integrations import calendar_file_bytes, load_backend
+from integrations import calendar_file_bytes, load_ai_backend, load_backend
 from ai_extraction import ExtractionProblem
 from runtime_config import ai_configured
 from interface_state import (
@@ -47,7 +47,7 @@ if "upload_generation" not in st.session_state:
     st.session_state.extraction_warnings = []
     st.session_state.source_label = "Manual entry; no AI result yet"
 
-ai = load_backend("ai_extraction", "extract_event")
+ai = load_ai_backend()
 calendar = load_backend("calendar_export", "generate_ics")
 
 st.title("SnapSched")

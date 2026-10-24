@@ -13,6 +13,45 @@ from interface_state import sample_event
 
 ROOT = Path(__file__).resolve().parents[1]
 POSTER = (ROOT/"samples/demo_poster.png").read_bytes()
+
+
+def _part_b_from_sample(overrides=None, warnings=None):
+    """Convert sample_event() to Part B's result format for test doubles.
+
+    Part B returns ``{"status": ..., "fields": {...}, "warnings": [...]}``
+    with different key names (``"date"`` instead of ``"event_date"``, etc.).
+    """
+    s = sample_event()
+    fields = {
+        "event_name": s.get("event_name"),
+        "date": s.get("event_date") or None,
+        "date_has_year_printed": bool(s.get("event_date")),
+        "start_time": s.get("start_time") or None,
+        "end_time": s.get("end_time") or None,
+        "venue": s.get("venue") or None,
+        "registration_method": s.get("registration_method") or None,
+        "registration_text_raw": None,
+    }
+    # Part A stores deadline as "YYYY-MM-DD HH:MM"; Part B splits it.
+    raw_deadline = s.get("registration_deadline", "")
+    if raw_deadline and " " in raw_deadline:
+        fields["registration_deadline"], fields["registration_deadline_time"] = raw_deadline.split(" ", 1)
+    else:
+        fields["registration_deadline"] = raw_deadline or None
+        fields["registration_deadline_time"] = None
+    if overrides:
+        fields.update(overrides)
+    return {
+        "status": "ok",
+        "mode": "live",
+        "fields": fields,
+        "warnings": warnings if warnings is not None else [],
+        "warning_codes": [],
+        "message": None,
+        "raw_model_output": None,
+    }
+
+
 CALENDAR_TEST_DOUBLE = (
     "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//SnapSched UI Test//EN\r\n"
     "BEGIN:VEVENT\r\nUID:ui-test@example.invalid\r\nDTSTAMP:20261021T000000Z\r\n"
@@ -119,7 +158,7 @@ class AppTests(unittest.TestCase):
 
     def test_new_upload_clears_confirmed_fields_consent_and_output(self):
         def fake_loader(module,function):
-            return Backend("connected",lambda *args: sample_event()) if module=="ai_extraction" else Backend("not connected")
+            return Backend("connected",lambda *args: _part_b_from_sample()) if module=="extraction" else Backend("not connected")
         with patch("integrations.load_backend",side_effect=fake_loader):
             app=self.start(); self.upload(app)
             app.checkbox(key="allow_ai").check().run()
@@ -149,9 +188,9 @@ class AppTests(unittest.TestCase):
     def test_ai_adapter_requires_consent_and_cannot_confirm_its_own_answer(self):
         received=[]
         def fake_extract(image_bytes,mime_type):
-            received.append((len(image_bytes),mime_type)); return sample_event()
+            received.append((len(image_bytes),mime_type)); return _part_b_from_sample()
         def fake_loader(module,function):
-            return Backend("connected",fake_extract) if module=="ai_extraction" else Backend("not connected")
+            return Backend("connected",fake_extract) if module=="extraction" else Backend("not connected")
         with patch("integrations.load_backend",side_effect=fake_loader):
             app=self.start(); self.upload(app)
             self.assertTrue(app.button(key="extract_ai").disabled)
@@ -166,7 +205,7 @@ class AppTests(unittest.TestCase):
     def test_api_error_does_not_leak_error_text_or_leave_old_results(self):
         def failing_ai(*args): raise RuntimeError("SECRET_API_TOKEN_DO_NOT_PRINT")
         def fake_loader(module,function):
-            return Backend("connected",failing_ai) if module=="ai_extraction" else Backend("not connected")
+            return Backend("connected",failing_ai) if module=="extraction" else Backend("not connected")
         with patch("integrations.load_backend",side_effect=fake_loader):
             app=self.start(); self.upload(app)
             app.text_input(key="field_event_name").input("Old draft").run()
@@ -256,8 +295,8 @@ class AppTests(unittest.TestCase):
     def test_ai_markup_is_displayed_as_plain_text(self):
         note="![not an image](https://example.com/private-tracker)"
         def fake_loader(module,function):
-            payload={**sample_event(),"warnings":[note]}
-            return Backend("connected",lambda *args:payload) if module=="ai_extraction" else Backend("not connected")
+            payload=_part_b_from_sample(warnings=[note])
+            return Backend("connected",lambda *args:payload) if module=="extraction" else Backend("not connected")
         with patch("integrations.load_backend",side_effect=fake_loader):
             app=self.start(); self.upload(app)
             app.checkbox(key="allow_ai").check().run()
