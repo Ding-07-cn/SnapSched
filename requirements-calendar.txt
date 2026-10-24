@@ -1,0 +1,4 @@
+#ics: used to generate ICS content. python-dateutil: time parsing and timezone handling. pytz: timezone support 
+ics==0.10.2 
+python-dateutil==2.8.2
+pytz==2023.3
