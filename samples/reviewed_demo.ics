@@ -1,0 +1,30 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//SnapSched HKU//Reviewed Event Export//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+SUMMARY:Student Research Skills Workshop (DEMO)
+DTSTART:20261105T070000Z
+DTEND:20261105T080000Z
+DTSTAMP:20261024T104737Z
+UID:f6fa0bf3852e88a6780b4c99b5ce5931@snapsched.invalid
+DESCRIPTION:Created from user-reviewed poster details. Adding this entry d
+ oes not register you.\nRegistration: https://example.com/register\nRegistr
+ ation deadline: 2026-11-03 18:00
+LOCATION:Demo Room 101 (sample location)
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Registration deadline: Student Research Skills Workshop (DEMO)
+DTSTART:20261103T100000Z
+DTSTAMP:20261024T104737Z
+UID:2280bfe5ee7cac0e4f12ba4340b5d445@snapsched.invalid
+DESCRIPTION:Check the organiser and complete registration yourself.\nRegis
+ tration: https://example.com/register\nRegistration deadline: 2026-11-03 1
+ 8:00
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Registration deadline: Student Research Skills Workshop (DEMO)
+TRIGGER:P0D
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,4 +1,4 @@
-"""SnapSched Part A: a usable, standalone Streamlit review interface."""
+"""SnapSched: poster extraction, human review and verified calendar export."""
 
 from hashlib import sha256
 from pathlib import Path
@@ -6,6 +6,8 @@ from pathlib import Path
 import streamlit as st
 
 from integrations import calendar_file_bytes, load_ai_backend, load_backend
+from ai_extraction import ExtractionProblem
+from runtime_config import ai_configured
 from interface_state import (
     FIELD_LIMITS, TEXT_FIELDS, confirmation_errors, empty_event, inspect_image,
     invalidate_review, normalise_event, populate_fields, replace_source,
@@ -35,6 +37,7 @@ def reset_workspace():
     st.session_state.preview_image = None
     st.session_state.preview_mime_type = ""
     st.session_state.image_error = None
+    st.session_state.extraction_rejected = False
 
 
 if "upload_generation" not in st.session_state:
@@ -58,6 +61,8 @@ with st.sidebar:
     st.write("A · Interface: ready")
     st.write(f"B · AI extraction: {ai.status}")
     st.write(f"C · Calendar export: {calendar.status}")
+    st.caption("Live AI key: configured" if ai_configured() else
+               "Live AI key: not configured. Saved sample and manual review still work.")
     st.caption("No HKU login, mailbox connection, account system or model training.")
 
 if mode == "Saved sample demo":
@@ -121,15 +126,20 @@ with left:
             populate_fields(st.session_state, empty_event())
             st.session_state.extraction_warnings = []
             st.session_state.source_label = "Extraction incomplete; enter details manually or retry"
+            st.session_state.extraction_rejected = False
             try:
                 with st.spinner("Reading the poster..."):
                     payload = ai.function(content, mime_type)
                     fields, warnings = normalise_event(payload)
                 populate_fields(st.session_state, fields)
                 st.session_state.extraction_warnings = warnings
-                st.session_state.source_label = "AI draft - verify against the original"
-            except Exception as exc:
-                st.error(f"{exc} No result has been confirmed. "
+                st.session_state.source_label = ("SAVED SAMPLE - not a live AI extraction"
+                    if payload.get("mode") == "demo" else "AI draft - verify against the original")
+            except ExtractionProblem as error:
+                st.session_state.extraction_rejected = error.code == "no_event_found"
+                st.error(str(error))
+            except Exception:
+                st.error("AI extraction could not finish. No result has been confirmed. "
                          "Retry, enter the fields manually, or use the labelled sample demo.")
         if not ai.function:
             st.caption("AI extraction is not connected yet. Manual review works now; the B owner "
@@ -167,13 +177,17 @@ with right:
     venue = st.text_input("Venue", key="field_venue", on_change=clear_confirmation,
                           disabled=locked, max_chars=FIELD_LIMITS["venue"],
                           placeholder="Keep abbreviations exactly as printed")
-    registration_deadline = st.text_input("Registration deadline (YYYY-MM-DD HH:MM, optional)",
+    registration_deadline = st.text_input("Registration deadline (YYYY-MM-DD [HH:MM], optional)",
                                           key="field_registration_deadline", on_change=clear_confirmation,
                                           disabled=locked, max_chars=FIELD_LIMITS["registration_deadline"])
     registration_method = st.text_input("Registration method / link (optional)",
                                         key="field_registration_method", on_change=clear_confirmation,
                                         disabled=locked, max_chars=FIELD_LIMITS["registration_method"],
                                         placeholder="Printed URL/email, or note that a QR code needs scanning")
+    st.text_area("Registration wording (as printed, optional)", key="field_registration_text_raw",
+                 disabled=locked, max_chars=FIELD_LIMITS["registration_text_raw"],
+                 on_change=clear_confirmation,
+                 help="Keep visible instructions from the poster; links are not opened automatically.")
     if not venue or not registration_method:
         st.warning("Venue or registration details are missing. Check the organiser's 'view details' "
                    "page or scan the original QR code. If genuinely not stated/not required, leave "
@@ -184,6 +198,8 @@ with right:
     if all_day:
         event["start_time"] = event["end_time"] = ""
     errors = confirmation_errors(event)
+    if st.session_state.extraction_rejected:
+        errors.append("No event was found in this image. Upload an event poster or retry extraction.")
     deadline_warning = registration_warning(event)
     if deadline_warning:
         st.warning(deadline_warning)
@@ -222,5 +238,5 @@ with right:
                        mime="text/calendar", disabled=not bool(output), key="download_calendar")
 
 st.divider()
-st.caption("Part A interface · Public/team-created posters only · Human confirmation required · "
+st.caption("SnapSched · Public/team-created posters only · Human confirmation required · "
            "No automatic registration or account access")

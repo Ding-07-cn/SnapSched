@@ -61,6 +61,11 @@ CALENDAR_TEST_DOUBLE = (
 
 class AppTests(unittest.TestCase):
     def setUp(self):
+        # Original boundary tests explicitly simulate disconnected teammates.
+        # tests/test_integrated_app.py exercises the real connected modules.
+        self.backends = patch("integrations.load_backend", return_value=Backend("not connected"))
+        self.backends.start()
+        self.addCleanup(self.backends.stop)
         # Keep the fixed, synthetic November poster usable as a test fixture later.
         class RecordedDateTime(datetime):
             @classmethod

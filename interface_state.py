@@ -12,11 +12,12 @@ MAX_FILE_BYTES = 8 * 1024 * 1024
 MAX_IMAGE_PIXELS = 20_000_000
 TEXT_FIELDS = (
     "event_name", "event_date", "start_time", "end_time", "venue",
-    "registration_deadline", "registration_method",
+    "registration_deadline", "registration_method", "registration_text_raw",
 )
 FIELD_KEYS = tuple("field_" + field for field in TEXT_FIELDS) + ("field_all_day",)
 FIELD_LIMITS = {"event_name": 200, "event_date": 10, "start_time": 5, "end_time": 5,
-                "venue": 300, "registration_deadline": 16, "registration_method": 2000}
+                "venue": 300, "registration_deadline": 16, "registration_method": 2000,
+                "registration_text_raw": 2000}
 
 
 def empty_event():
@@ -32,6 +33,7 @@ def sample_event():
         "venue": "Demo Room 101 (sample location)",
         "registration_deadline": "2026-11-03 18:00",
         "registration_method": "https://example.com/register",
+        "registration_text_raw": "",
         "all_day": False, "timezone": "Asia/Hong_Kong",
     }
 
@@ -46,6 +48,8 @@ def normalise_event(payload):
             value = ""
         if not isinstance(value, str):
             raise ValueError(f"{field} must be a string or null.")
+        if any(ord(c) < 32 and c not in "\n\r\t" for c in value):
+            raise ValueError(f"{field} contains invalid control characters.")
         if len(value.strip()) > FIELD_LIMITS[field]:
             raise ValueError(f"{field} is too long for the review form.")
         result[field] = value.strip()
@@ -59,7 +63,7 @@ def normalise_event(payload):
     warnings = payload.get("warnings", [])
     if not isinstance(warnings, list) or any(not isinstance(x, str) for x in warnings):
         raise ValueError("warnings must be a list of strings.")
-    if len(warnings) > 10 or any(len(x) > 500 for x in warnings):
+    if len(warnings) > 30 or any(len(x) > 500 for x in warnings):
         raise ValueError("Too many or excessively long extraction warnings.")
     return result, warnings
 
@@ -80,7 +84,9 @@ def inspect_image(content):
             image.verify()
         # Decode now so corrupt files cannot fail later in the preview.
         with Image.open(BytesIO(content)) as image:
-            preview = ImageOps.exif_transpose(image).convert("RGB")
+            oriented = ImageOps.exif_transpose(image).convert("RGBA")
+            preview = Image.new("RGB", oriented.size, "white")
+            preview.paste(oriented, mask=oriented.getchannel("A"))
     except (UnidentifiedImageError, OSError, Image.DecompressionBombError) as error:
         raise ValueError("This image cannot be read. Please choose another JPG/PNG.") from error
     return preview, mime_type
@@ -116,23 +122,42 @@ def confirmation_errors(event, today=None):
                                   "Check overnight events with the calendar owner.")
             except ValueError:
                 errors.append("Use HH:MM for the end time, or leave it blank if not stated.")
-    if event["registration_deadline"]:
-        try:
-            deadline = datetime.strptime(event["registration_deadline"], "%Y-%m-%d %H:%M")
-            if deadline.strftime("%Y-%m-%d %H:%M") != event["registration_deadline"]:
-                raise ValueError
-        except ValueError:
-            errors.append("Use YYYY-MM-DD HH:MM for a stated registration deadline, or leave it blank.")
+    try:
+        parse_deadline(event["registration_deadline"])
+    except ValueError:
+        errors.append("Use YYYY-MM-DD or YYYY-MM-DD HH:MM for a stated deadline, or leave it blank.")
     return errors
+
+
+def parse_deadline(value):
+    """A printed date without a time must never silently become midnight."""
+    if not value:
+        return None
+    if len(value) == 10:
+        parsed = date.fromisoformat(value)
+        if parsed.isoformat() == value:
+            return parsed
+    else:
+        parsed = datetime.strptime(value, "%Y-%m-%d %H:%M")
+        if parsed.strftime("%Y-%m-%d %H:%M") == value:
+            return parsed
+    raise ValueError("Invalid deadline format.")
 
 
 def registration_warning(event, now=None):
     """Warn without rejecting an upcoming event just because registration closed."""
     try:
-        deadline = datetime.strptime(event["registration_deadline"], "%Y-%m-%d %H:%M")
+        deadline = parse_deadline(event["registration_deadline"])
     except ValueError:
         return None
     now = now or datetime.now(ZoneInfo("Asia/Hong_Kong"))
+    if deadline is None:
+        return None
+    if not isinstance(deadline, datetime):
+        if deadline <= now.date():
+            return ("Registration closes today or earlier, but no time is stated. Check with the "
+                    "organiser. No possibly expired deadline entry will be exported.")
+        return "No registration closing time is stated. The deadline will be a date-only entry, not a guessed time."
     if deadline <= now.replace(tzinfo=None):
         return ("The registration deadline has passed. Adding this event does not secure a place. "
                 "Check with the organiser; an expired deadline must not become a new reminder.")
@@ -168,4 +193,5 @@ def replace_source(state, source_id):
     state["preview_image"] = None
     state["preview_mime_type"] = ""
     state["image_error"] = None
+    state["extraction_rejected"] = False
     populate_fields(state, empty_event())

@@ -1,0 +1,138 @@
+{
+  "ordinary_01": {
+    "status": "ok",
+    "event_name": "Career Skills Talk",
+    "date": "2026-11-08",
+    "start_time": "18:00",
+    "end_time": "20:00",
+    "venue": "MB 123",
+    "registration_method": "https://example.com/register-A",
+    "registration_deadline": "2026-11-05",
+    "registration_deadline_time": "17:00"
+  },
+  "ordinary_02": {
+    "status": "ok",
+    "event_name": "Research Lab Workshop",
+    "date": "2026-11-09",
+    "start_time": "14:30",
+    "end_time": "16:00",
+    "venue": "CPD-LG.01",
+    "registration_method": "https://example.com/Join?event=Lab2",
+    "registration_deadline": "2026-11-06",
+    "registration_deadline_time": "18:00"
+  },
+  "ordinary_03_qr": {
+    "status": "ok",
+    "event_name": "Student Design Meetup",
+    "date": "2026-11-10",
+    "start_time": "10:00",
+    "end_time": "11:00",
+    "venue": "KKL 101",
+    "registration_method": "QR code shown on poster",
+    "registration_deadline": null,
+    "registration_deadline_time": null,
+    "required_warning_codes": [
+      "QR_SCAN_MANUALLY"
+    ]
+  },
+  "ordinary_04": {
+    "status": "ok",
+    "event_name": "Public Speaking Practice",
+    "date": "2026-11-11",
+    "start_time": "11:00",
+    "end_time": "12:30",
+    "venue": "CC 101",
+    "registration_method": "clubs@example.org",
+    "registration_deadline": null,
+    "registration_deadline_time": null
+  },
+  "ordinary_05": {
+    "status": "ok",
+    "event_name": "Student Film Discussion",
+    "date": "2026-11-12",
+    "start_time": "18:00",
+    "end_time": "20:00",
+    "venue": "CPD-3.04",
+    "registration_method": null,
+    "registration_deadline": null,
+    "registration_deadline_time": null
+  },
+  "ordinary_06": {
+    "status": "ok",
+    "event_name": "Careers Q and A",
+    "date": "2026-11-13",
+    "start_time": "12:00",
+    "end_time": "13:00",
+    "venue": "Auditorium LG1",
+    "registration_method": null,
+    "registration_deadline": null,
+    "registration_deadline_time": null
+  },
+  "ordinary_07": {
+    "status": "ok",
+    "event_name": "Study Skills Workshop",
+    "date": "2026-11-14",
+    "start_time": "09:00",
+    "end_time": "10:00",
+    "venue": "CPD-2.58",
+    "registration_method": null,
+    "registration_deadline": null,
+    "registration_deadline_time": null
+  },
+  "ordinary_08": {
+    "status": "ok",
+    "event_name": "Campus Photography Talk",
+    "date": "2026-11-15",
+    "start_time": "16:00",
+    "end_time": "17:00",
+    "venue": "MB G07",
+    "registration_method": null,
+    "registration_deadline": null,
+    "registration_deadline_time": null
+  },
+  "special_09_no_date": {
+    "status": "ok",
+    "event_name": "Workshop - Date Pending",
+    "date": null,
+    "start_time": "15:00",
+    "end_time": "16:00",
+    "venue": "MB 123",
+    "registration_method": null,
+    "registration_deadline": null,
+    "registration_deadline_time": null,
+    "required_warning_codes": [
+      "MISSING_DATE"
+    ]
+  },
+  "special_10_closed": {
+    "status": "ok",
+    "event_name": "Upcoming Research Talk",
+    "date": "2026-11-20",
+    "start_time": "15:00",
+    "end_time": "16:00",
+    "venue": "MB 123",
+    "registration_method": "https://example.com/closed",
+    "registration_deadline": "2026-10-20",
+    "registration_deadline_time": "18:00",
+    "required_warning_codes": [
+      "REGISTRATION_DEADLINE_PASSED"
+    ]
+  },
+  "special_11_hidden_venue": {
+    "status": "ok",
+    "event_name": "Society Workshop",
+    "date": "2026-11-21",
+    "start_time": "18:00",
+    "end_time": "19:00",
+    "venue": null,
+    "registration_method": "https://example.com/details",
+    "registration_deadline": null,
+    "registration_deadline_time": null,
+    "required_warning_codes": [
+      "CHECK_ORGANISER_PAGE"
+    ]
+  },
+  "special_12_unrelated": {
+    "status": "no_event_found"
+  }
+}

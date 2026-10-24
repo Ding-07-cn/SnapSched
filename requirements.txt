@@ -1,2 +1,7 @@
 # Working starting point; merge B/C dependencies here during integration.
 -r requirements-ui.txt
+
+# Part B (AI extraction)
+google-genai==2.33.0
+python-dotenv==1.2.4
+-r requirements-calendar.txt

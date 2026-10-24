@@ -117,7 +117,7 @@ class StateTests(unittest.TestCase):
 
     def test_unbounded_backend_strings_are_rejected_not_silently_truncated(self):
         for payload in [{"venue":"x"*301},{"warnings":["x"*501]},
-                        {"warnings":["warning"]*11}]:
+                        {"warnings":["warning"]*31}]:
             with self.assertRaises(ValueError): normalise_event(payload)
 
     def test_closed_registration_is_warning_not_event_rejection(self):

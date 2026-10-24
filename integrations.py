@@ -54,55 +54,18 @@ def _adapt_extraction(raw_extract):
     * Renames ``"date"`` -> ``"event_date"``.
     * Merges ``registration_deadline`` + ``registration_deadline_time``.
     * Adds ``all_day=False`` and ``timezone="Asia/Hong_Kong"``.
-    * Raises ``ValueError`` with Part B's safe message when status != "ok".
+    * Raises a typed error with a local safe message when status != "ok".
     """
     def adapted(image_bytes, mime_type):
-        result = raw_extract(image_bytes, mime_type)
-
-        # --- error / non-poster: raise so app.py's except block fires ---
-        if not isinstance(result, dict) or result.get("status") != "ok":
-            message = (result.get("message") if isinstance(result, dict) else None
-                       ) or "AI extraction could not finish."
-            raise ValueError(message)
-
-        raw_fields = result.get("fields") or {}
-        if not isinstance(raw_fields, dict):
-            raise ValueError("AI extraction returned an unexpected format.")
-
-        # --- map Part B keys -> Part A keys ---
-        adapted_fields = {
-            "event_name": raw_fields.get("event_name") or "",
-            "event_date": raw_fields.get("date") or "",
-            "start_time": raw_fields.get("start_time") or "",
-            "end_time": raw_fields.get("end_time") or "",
-            "venue": raw_fields.get("venue") or "",
-            "registration_method": raw_fields.get("registration_method") or "",
-        }
-
-        # Merge separate deadline date + time into "YYYY-MM-DD HH:MM".
-        deadline_date = raw_fields.get("registration_deadline")
-        deadline_time = raw_fields.get("registration_deadline_time")
-        if deadline_date and deadline_time:
-            adapted_fields["registration_deadline"] = f"{deadline_date} {deadline_time}"
-        elif deadline_date:
-            adapted_fields["registration_deadline"] = str(deadline_date)
-        else:
-            adapted_fields["registration_deadline"] = ""
-
-        # Part B does not produce these; supply sensible defaults.
-        adapted_fields["all_day"] = False
-        adapted_fields["timezone"] = "Asia/Hong_Kong"
-
-        # Part B warnings are already plain strings, compatible with Part A.
-        warnings = result.get("warnings") or []
-        adapted_fields["warnings"] = [w for w in warnings if isinstance(w, str)]
-        return adapted_fields
+        # One audited conversion path for both the team loader and direct API.
+        from ai_extraction import adapt_result
+        return adapt_result(raw_extract(image_bytes, mime_type))
 
     return adapted
 
 
 def load_ai_backend():
-    """Load Part B's extraction module and wrap it for Part A's interface."""
+    """Load the team's original module name, with the shared safe adapter."""
     backend = load_backend("extraction", "extract_event")
     if backend.function is not None:
         return Backend(backend.status, _adapt_extraction(backend.function))
