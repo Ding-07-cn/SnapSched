@@ -14,7 +14,7 @@ FILES = [
     "import_validator.py", "exceptions.py",
     "tests_log_template.csv", "requirements.txt", "requirements-ui.txt",
     "requirements-calendar.txt", "requirements-dev.txt", "repository_link.txt",
-    "samples/demo_poster.png", "scripts/create_sample_poster.py",
+    "samples/demo_poster.png", "samples/reviewed_demo.ics", "scripts/create_sample_poster.py",
     "scripts/create_evaluation_posters.py", "scripts/evaluate_live.py",
     "scripts/package_project.py", "docs/INTEGRATION_TEST_REPORT.md",
     "docs/DEMO_GUIDE.md", "docs/GE_JIAYU_CONTRIBUTION.md",

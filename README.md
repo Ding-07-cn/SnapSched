@@ -15,6 +15,10 @@ Their original import names delegate to the same validated implementation;
 there is no second UI or second calendar library to configure.
 Local verification currently passes 79 regression tests and 55 Part B offline
 self-checks; these counts do not represent live AI accuracy.
+Clean Ubuntu CI also passes on Python 3.11/3.12
+([verified run](https://github.com/Ding-07-cn/SnapSched/actions/runs/40088278623)).
+`samples/reviewed_demo.ics` is an actual browser download from the clearly
+labelled saved sample, not an AI-extracted result or client-import certificate.
 
 **Verification boundary:** automated integration tests replace only the external
 model response; they do not measure AI accuracy. Real API extraction, the full

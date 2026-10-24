@@ -18,6 +18,12 @@ Exact final test results and verification limits are in
 AI accuracy. Real API evaluation, independent review and actual calendar-client
 imports remain separate tasks, not completed claims.
 
+After incorporating the concurrent adapter and latest calendar helpers, 79 local
+tests and 55 Part B self-checks passed. Clean Ubuntu CI also passed under Python
+3.11 and 3.12 (run 40088278623). I verified an actual browser download from the
+labelled saved sample and checked its two serialized UTC events. This is not
+evidence of live AI accuracy or an actual calendar-client import.
+
 The notes below record the original 21 October Part A handoff and its then-current
 limitations; they do not override this integration update.
 

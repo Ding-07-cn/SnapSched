@@ -7,12 +7,17 @@
 - Part B offline CLI self-tests: **55/55** passed. They use mocked responses,
   not a live AI service, including the prompt-injection response checks.
 - Dependency compatibility: `pip check` passed; whitespace/diff check passed.
+- GitHub Actions on clean Ubuntu runners: **Python 3.11 and 3.12 both passed**
+  all regression tests, Part B self-tests, dependency checks and compilation.
+  [Verified run 40088278623](https://github.com/Ding-07-cn/SnapSched/actions/runs/40088278623)
+  tested code commit `7d64b33`. PR: https://github.com/Ding-07-cn/SnapSched/pull/2.
 - Actual browser: uploaded a synthetic PNG, gave processing consent and attempted
   extraction without a key. A clear safe error appeared, no successful AI answer.
 - Actual browser: labelled saved sample → explicit review → confirmation → real
   calendar generation → browser download. Downloaded bytes parsed as two UTC
   events: 5 November 15:00–16:00 HKT and 3 November 18:00 HKT registration deadline.
   The deadline has an at-time display alarm. This is a **saved-data** check.
+  The actual downloaded file is retained at `samples/reviewed_demo.ics`.
 - Actual browser: **Edit details** unlocked the form and disabled/cleared the
   previous export. Phone-size (390×844) export controls checked without overflow.
   `integrated-mobile.png` is saved-data UI evidence, not live AI evidence.
@@ -51,7 +56,7 @@ were added. See README for current provider policy and limitations.
 | Independent fixture/result review | PENDING: another teammate checks source vs fields |
 | Three calendar-client imports | PENDING: actual client checks, not parser round-trips |
 | Public deployment and live workflow | NOT VERIFIED: owner must provide actual URL and configure secrets |
-| Current integration CI | Awaiting publication; local success is not a remote CI claim |
+| Integration CI | PASS on clean Ubuntu / Python 3.11 and 3.12; run linked above |
 | Official midterm package/video/status sheet | Not complete; source ZIP is a code handoff only |
 
 The application's clear/reset action does not prove deletion at the provider or
