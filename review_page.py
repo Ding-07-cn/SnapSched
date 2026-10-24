@@ -23,11 +23,11 @@ from review_logic import (
 st.set_page_config(page_title="Event Review", page_icon="📌", layout="wide")
 st.title("Event Review Interface")
 
-# 插件加载（动态导入）
+# Plugin loading (dynamic import)
 ai_backend = load_backend("ai_extraction", "extract_event")
 calendar_backend = load_backend("calendar_export", "generate_ics")
 
-# Session 初始化
+# Session initialization
 defaults = {
     "event_data": ensure_standard_event({}),
     "saved_path": None,
@@ -92,7 +92,7 @@ with right:
             new_text.strip() if new_text.strip() else None
         )
 
-    # Submit（先保存，再检查None）
+    # Submit（save，then check None）
     submit_col_left, submit_col_right = st.columns([4, 1])
     with submit_col_right:
         submit_clicked = st.button("Submit", type="primary", use_container_width=True)
@@ -100,11 +100,11 @@ with right:
     if submit_clicked:
         sid = source_id_from_bytes(source_name, image_bytes)
 
-        # 1) 先保存
+        # 1) save
         saved = save_event_json(st.session_state.event_data, sid)
         st.session_state.saved_path = str(saved)
 
-        # 2) 再检查缺失
+        # 2) check missing 
         missing = find_missing_required_fields(st.session_state.event_data)
         if missing:
             readable = [FIELD_LABELS[p] for p in missing]
@@ -124,7 +124,7 @@ with right:
     if st.session_state.saved_path:
         st.caption(f"Last saved file: {st.session_state.saved_path}")
 
-    # 非阻断提醒：时间格式
+    # Time format
     bad_time_fields = []
     for p in ["start_dt", "end_dt", "reg_deadline_dt"]:
         v = get_by_path(st.session_state.event_data, p)
@@ -135,7 +135,7 @@ with right:
         for f in bad_time_fields:
             st.caption(f"- {f} should follow YYYY-MM-DD HH:MM")
 
-    # 时间表预览 + ICS 导出
+    # Preview + ICS export
     st.divider()
     st.subheader("3) Schedule output")
 
