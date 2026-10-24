@@ -19,8 +19,9 @@ See [README.md](README.md) for setup, secrets, privacy, hosting and limitations.
 
 ## B contract
 
-The interface calls `ai_extraction.extract_event(image_bytes, mime_type)`.
-This adapter calls the real Part B `extraction.extract_event` and converts:
+The interface uses the team's `integrations.load_ai_backend()` to call the real
+Part B `extraction.extract_event`. Both that path and the direct
+`ai_extraction.extract_event(image_bytes, mime_type)` use `adapt_result` to convert:
 
 - B `fields.date` → UI `event_date`.
 - B `registration_deadline` + `registration_deadline_time` → either
@@ -53,6 +54,15 @@ entries; expired ones do not. A date-only deadline on the current date is not
 assumed to remain open. Only future timed deadlines have an explicit at-time alarm.
 
 Calendar output is parsed back and checked before it is offered for download.
+
+Part C's `generate_calendar.py`, `parser.py`, `validator.py`, `ics_generator.py`
+and `import_validator.py` are kept as working compatibility entrypoints using
+the same validation/library. Missing `config`/`load_existing_ics`/`create_event_obj`
+references are repaired. Required fields are not expanded to include optional
+venue, end time or deadline. `generate_calendar.generate_ics` explicitly rejects
+an old-calendar argument rather than silently dropping old events. This MVP
+does not merge a user's calendar. `validate_import` is a parser check only,
+not evidence of compatibility with a real calendar client.
 Editing confirmed details clears both the approved snapshot and old bytes. No
 database, mailbox/calendar account integration or server calendar retention exists.
 

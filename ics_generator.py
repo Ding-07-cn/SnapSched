@@ -1,68 +1,33 @@
-# Import necessary modules
-from ics import Calendar, Event
-from datetime import datetime
-import pytz
-from config import DEFAULT_TIMEZONE
+"""Part C helpers backed by the same installed iCalendar library.
+
+Compatibility helpers, not a second export workflow. No missing config module
+or separate ics package is required.
+"""
+from icalendar import Calendar, Event
+
+from calendar_export import generate_ics
+from exceptions import ICSGenerationError
+from parser import parse_and_convert_time
+
 
 def generate_ics_content(events: list) -> str:
-    """
-    Generate a complete ICS content string based on the event list
-    Input:
-        events: list of validated event objects (each an `ics` library Event instance)
-    Output:
-        ICS format string
-    """
-    cal = Calendar()
+    if not events or any(not isinstance(event, Event) for event in events):
+        raise ICSGenerationError("Provide validated iCalendar Event objects.")
+    calendar = Calendar()
+    calendar.add("version", "2.0")
+    calendar.add("prodid", "-//SnapSched HKU//Compatibility Export//EN")
     for event in events:
-        cal.events.add(event)
-    return str(cal)
+        calendar.add_component(event)
+    return calendar.to_ical().decode("utf-8")
+
 
 def create_event_obj(event: dict) -> Event:
-    """
-    Create an ICS event object from a single event dictionary
-    Input:
-        event: validated event dictionary
-    Output:
-        Event instance from the ics library
-    """
-    ics_event = Event()
-    # Set event title
-    ics_event.name = event["event_name"]
-    # Set location
-    ics_event.location = event["venue"]
-    # Set description (including registration info)
-    description = f"Registration Method: {event['registration_method']}"
-    ics_event.description = description
+    """Primary event only; use calendar_export for deadline-inclusive output."""
+    return Calendar.from_ical(generate_ics(event)).walk("VEVENT")[0]
 
-    # Handle all-day events
-    all_day = event.get("all_day", False)
-    timezone_str = event.get("timezone", DEFAULT_TIMEZONE)
-    tz = pytz.timezone(timezone_str)
 
-    if all_day:
-        # All-day event: set only the date, no time
-        date_str = event["event_date"]
-        date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
-        ics_event.begin = date_obj
-        ics_event.make_all_day()
-    else:
-        # Non-all-day event: set specific times
-        start_dt = parse_and_convert_time(event["event_date"], event["start_time"], timezone_str)
-        end_dt = parse_and_convert_time(event["event_date"], event["end_time"], timezone_str)
-        ics_event.begin = start_dt
-        ics_event.end = end_dt
-
-    # Set timezone info (optional; the ics library handles it automatically)
-    ics_event.timezone = tz
-
-    return ics_event
-
-def parse_and_convert_time(date_str, time_str, timezone_str):
-    """
-    Parse date and time strings and convert to a timezone-aware datetime object
-    """
-    dt_str = f"{date_str} {time_str}"
-    dt_naive = datetime.strptime(dt_str, "%Y-%m-%d %H:%M")
-    tz = pytz.timezone(timezone_str)
-    dt_aware = tz.localize(dt_naive)
-    return dt_aware
+def load_existing_ics(content: str) -> list:
+    """Parse only; not automatic merging or real calendar-client evidence."""
+    from import_validator import validate_import
+    validate_import(content)
+    return Calendar.from_ical(content).walk("VEVENT")

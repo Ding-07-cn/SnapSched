@@ -10,6 +10,12 @@ extract event fields through Gemini, edit them next to the poster, explicitly
 confirm, and download a real `.ics` file. A future registration deadline becomes
 a separate entry. The original Part B and C branch histories are preserved.
 
+The concurrent Part A–B adapter and latest Part C helper files are also included.
+Their original import names delegate to the same validated implementation;
+there is no second UI or second calendar library to configure.
+Local verification currently passes 79 regression tests and 55 Part B offline
+self-checks; these counts do not represent live AI accuracy.
+
 **Verification boundary:** automated integration tests replace only the external
 model response; they do not measure AI accuracy. Real API extraction, the full
 12-image evaluation, independent teammate review and three calendar-client
@@ -171,9 +177,9 @@ python scripts/package_project.py
   modules, missing calendar backend, regression tests, setup and handoff updates.
 - **Aryan / Part B:** Gemini extraction, prompts, field checks and CLI self-tests;
   integrated with small configuration and request-bound fixes.
-- **Nicole / Part C:** calendar review/entrypoint work and requirements; the
-  missing backend/contract was completed during integration. Her earlier branch
-  is preserved, not presented as a finished standalone module.
+- **Nicole / Part C:** calendar review and backend/helper drafts; integration
+  repaired their missing imports and aligned optional-field/deadline rules.
+  Her latest branch history is preserved alongside the completed implementation.
 - **Ding Siqi / Part D:** team repository, collaboration and deployment coordination.
 
 [GE Jiayu's factual contribution notes](docs/GE_JIAYU_CONTRIBUTION.md) are a writing

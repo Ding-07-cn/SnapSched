@@ -2,7 +2,8 @@
 
 ## Completed locally
 
-- Python 3.12.14: **74/74** unit/interface/integration tests passed (4.515 s).
+- Python 3.12.14: **79/79** unit/interface/integration tests passed (4.451 s),
+  rerun after incorporating the concurrent team changes.
 - Part B offline CLI self-tests: **55/55** passed. They use mocked responses,
   not a live AI service, including the prompt-injection response checks.
 - Dependency compatibility: `pip check` passed; whitespace/diff check passed.
@@ -23,11 +24,18 @@
 
 The original B/C branch histories are merged rather than rewritten. The adapter
 keeps source wording and separates API errors/unrelated images from events.
-The missing calendar backend was completed with `icalendar`, including escaping,
+The calendar backend was completed with `icalendar`, including escaping,
 UTC times, all-day exclusive end, optional fields, stable IDs and future-only
 deadline reminders. Date-only deadlines never become guessed midnight alarms.
 The live evaluation script rejects demo/error-simulation mode and missing keys;
 it explicitly scores deadline times and leaves human checks pending.
+
+Concurrent changes were incorporated before publication: main's Part A–B adapter
+(`d2d7e98`) and the latest C helpers (`aff21df`). C's missing config/import references,
+duplicate library dependency and overly strict optional-field requirements were
+replaced by compatibility wrappers around the canonical implementation. Five
+compatibility tests verify old entrypoint names and reject unsupported old-calendar
+input explicitly. Unexpected provider exception text is never shown in the UI.
 
 Scope was checked against the locally saved **SnapSched_Project_Proposal_Revised_Final.pdf**
 (9 October revision). Existing-calendar merging and automatic retention are not

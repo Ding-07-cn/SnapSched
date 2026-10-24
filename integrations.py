@@ -54,7 +54,7 @@ def _adapt_extraction(raw_extract):
     * Renames ``"date"`` -> ``"event_date"``.
     * Merges ``registration_deadline`` + ``registration_deadline_time``.
     * Adds ``all_day=False`` and ``timezone="Asia/Hong_Kong"``.
-    * Raises ``ValueError`` with Part B's safe message when status != "ok".
+    * Raises a typed error with a local safe message when status != "ok".
     """
     def adapted(image_bytes, mime_type):
         # One audited conversion path for both the team loader and direct API.

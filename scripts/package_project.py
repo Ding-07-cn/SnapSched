@@ -10,6 +10,8 @@ FILES = [
     "app.py", "interface_state.py", "integrations.py", "integrations-c.py",
     "review_page.py", "extraction.py", "prompts.py", "ai_extraction.py",
     "calendar_export.py", "runtime_config.py", "test_extraction.py",
+    "generate_calendar.py", "parser.py", "validator.py", "ics_generator.py",
+    "import_validator.py", "exceptions.py",
     "tests_log_template.csv", "requirements.txt", "requirements-ui.txt",
     "requirements-calendar.txt", "requirements-dev.txt", "repository_link.txt",
     "samples/demo_poster.png", "scripts/create_sample_poster.py",
